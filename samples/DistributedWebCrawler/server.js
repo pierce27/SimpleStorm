@@ -28,6 +28,12 @@ function Resolver(inputqueue, outputqueue) {
         console.log('Resolving ' + link);
         var urldata = url.parse(link);
 
+        // Remove Hash
+        link = link.replace(urldata.hash, '')
+        
+        // Remove Query Params
+        link = link.replace(urldata.search, '')
+        
         if (!isHostName(urldata.hostname))
             return;
 

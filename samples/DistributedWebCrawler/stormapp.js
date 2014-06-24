@@ -3,6 +3,9 @@ var ss = require('../../'),
     sq = require('simplequeue'),
 	http = require('http'),
     url = require('url');
+
+var fs = require('fs');
+var helper = require('./helper')
     
 var hostnames = {};
 
@@ -14,6 +17,7 @@ function registerHostName(hostname)
         hostnames[hostname] = true;
     }
 }
+
 
 function isHostName(hostname)
 {
@@ -31,7 +35,32 @@ function Spout(queue) {
                 console.log(err);
             else {
                 console.log('Received ' + msg);
-                context.emit(msg);
+                
+                var urlType
+                var postRegex = [/\d{4}/g, /\d{2}/g, /\d{2}/g, /(\w+\-){1,}\w+/g]
+
+                // if(helper.urlParser(postRegex, msg)){
+                //     urlType = 'Post: '
+                //     console.log(urlType)
+                // } else{
+                //     urlType = 'Other: '
+                //     console.log(urlType)
+                // }
+
+                
+
+                fs.appendFile("/Users/andrewpierce/Onswipe/dev/SimpleStorm/samples/DistributedWebCrawler/towleroad2.txt", msg+"\n", function(err) {
+                    if(err) {
+                        console.log(err);
+                        console.log('error')
+                    } else {
+                        // console.log("The file was saved!");
+                        
+                    }
+                });
+            
+            context.emit(msg);
+                
             }
 
             queue.getMessage(processMessage);
@@ -52,7 +81,7 @@ function Resolver(queue) {
 function Downloader() {    
     this.process = function(link, context) {
         var urldata = url.parse(link);
-        
+        console.log('here')
         registerHostName(urldata.hostname);
         
         options = {
@@ -77,6 +106,8 @@ function Downloader() {
 
 var match1 = /href=\s*"([^&"]*)"/ig;
 var match2= /href=\s*'([^&']*)'/ig;
+// var match1= /href="(.*\/\d{4}\/\d{2}\/.*\/)"/ig;
+// var match2= /href='(.*\/\d{4}\/\d{2}\/.*\/)'/ig;
 
 function Harvester() {
     this.process = function(data, context) {
